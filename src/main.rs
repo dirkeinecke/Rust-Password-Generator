@@ -1,8 +1,31 @@
 extern crate rand;
 
+use std::env;
 use rand::prelude::*;
 
 fn main() {
+
+    let args: Vec<String> = env::args().collect();
+
+    let password_length = 10;
+
+    let use_uppercase_letters = if args.contains(&String::from("mixedcase")) {
+        true
+    } else {
+        false
+    };
+
+    let use_numbers = if args.contains(&String::from("numbers")) {
+        true
+    } else {
+        false
+    };
+
+    let use_symbols = if args.contains(&String::from("symbols")) {
+        true
+    } else {
+        false
+    };
 
     let lowercase_letters: [&str; 26] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
     let uppercase_letters: [&str; 26] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -12,12 +35,6 @@ fn main() {
     let mut rng = thread_rng();
 
     let mut password = String::new();
-
-    let password_length = 10;
-
-    let use_uppercase_letters = true;
-    let use_numbers = true;
-    let use_symbols = true;
 
     while password.len() < password_length {
         let mut random_strings = ["", "", "", ""];
