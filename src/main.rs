@@ -7,7 +7,29 @@ fn main() {
 
     let args: Vec<String> = env::args().collect();
 
-    let password_length = 10;
+    let mut password_length: usize = 10;
+
+    for a in &args {
+        if a.contains(&String::from("length=")) {
+            let length: Vec<&str> = a.split('=').collect();
+
+            match length[1].parse::<usize>() {
+                Ok(n) => {
+                    password_length = n
+                },
+                Err(error) => {
+                    // kind is not public, so we've to use the description
+                    match error.to_string().as_ref() {
+                        "cannot parse integer from empty string" => println!("Pleace enter a password length."),
+                        "invalid digit found in string" => println!("Pleace enter a valid password length."),
+                        _ => println!("There is something wrong with your password length."),
+                    };
+
+                    println!("Password length is set to default value ({}).", password_length);
+                },
+            };
+        }
+    }
 
     let use_uppercase_letters = if args.contains(&String::from("mixedcase")) {
         true
