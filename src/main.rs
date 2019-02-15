@@ -1,15 +1,18 @@
 extern crate rand;
 
 use std::env;
+use std::ffi::OsString;
 use rand::prelude::*;
 
 fn main() {
 
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<OsString> = env::args_os().collect();
 
     let mut password_length: usize = 10;
 
     for a in &args {
+        let a = a.to_str().unwrap_or("");
+
         if a.contains(&String::from("length=")) {
             let length: Vec<&str> = a.split('=').collect();
 
@@ -31,19 +34,19 @@ fn main() {
         }
     }
 
-    let use_uppercase_letters = if args.contains(&String::from("mixedcase")) {
+    let use_uppercase_letters = if args.contains(&OsString::from("mixedcase")) {
         true
     } else {
         false
     };
 
-    let use_numbers = if args.contains(&String::from("numbers")) {
+    let use_numbers = if args.contains(&OsString::from("numbers")) {
         true
     } else {
         false
     };
 
-    let use_symbols = if args.contains(&String::from("symbols")) {
+    let use_symbols = if args.contains(&OsString::from("symbols")) {
         true
     } else {
         false
