@@ -4,11 +4,23 @@ use std::env;
 use std::ffi::OsString;
 use rand::prelude::*;
 
+struct Config {
+    password_length: usize,
+    use_uppercase_letters: bool,
+    use_numbers: bool,
+    use_symbols: bool,
+}
+
 fn main() {
 
     let args: Vec<OsString> = env::args_os().collect();
 
-    let mut password_length: usize = 10;
+    let mut config = Config {
+        password_length: 10,
+        use_uppercase_letters: args.contains(&OsString::from("mixedcase")),
+        use_numbers: args.contains(&OsString::from("numbers")),
+        use_symbols: args.contains(&OsString::from("symbols")),
+    };
 
     for a in &args {
         let a = a.to_str().unwrap_or("");
@@ -18,39 +30,21 @@ fn main() {
 
             match length[1].parse::<usize>() {
                 Ok(n) => {
-                    password_length = n
+                    config.password_length = n
                 },
                 Err(error) => {
                     // kind is not public, so we've to use the description
                     match error.to_string().as_ref() {
-                        "cannot parse integer from empty string" => println!("Pleace enter a password length."),
-                        "invalid digit found in string" => println!("Pleace enter a valid password length."),
-                        _ => println!("There is something wrong with your password length."),
+                        "cannot parse integer from empty string" => eprintln!("Pleace enter a password length."),
+                        "invalid digit found in string" => eprintln!("Pleace enter a valid password length."),
+                        _ => eprintln!("There is something wrong with your password length."),
                     };
 
-                    println!("Password length is set to default value ({}).", password_length);
+                    eprintln!("Password length is set to default value ({}).", config.password_length);
                 },
             };
         }
     }
-
-    let use_uppercase_letters = if args.contains(&OsString::from("mixedcase")) {
-        true
-    } else {
-        false
-    };
-
-    let use_numbers = if args.contains(&OsString::from("numbers")) {
-        true
-    } else {
-        false
-    };
-
-    let use_symbols = if args.contains(&OsString::from("symbols")) {
-        true
-    } else {
-        false
-    };
 
     let lowercase_letters: [&str; 26] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
     let uppercase_letters: [&str; 26] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -61,7 +55,7 @@ fn main() {
 
     let mut password = String::new();
 
-    while password.len() < password_length {
+    while password.len() < config.password_length {
         let mut random_strings = ["", "", "", ""];
 
         {
@@ -70,21 +64,21 @@ fn main() {
         }
 
         {
-            if use_uppercase_letters {
+            if config.use_uppercase_letters {
                 let random_number = rng.gen_range(0, uppercase_letters.len());
                 random_strings[1] = uppercase_letters[random_number];
             }
         }
 
         {
-            if use_numbers {
+            if config.use_numbers {
                 let random_number = rng.gen_range(0, numbers.len());
                 random_strings[2] = numbers[random_number];
             }
         }
 
         {
-            if use_symbols {
+            if config.use_symbols {
                 let random_number = rng.gen_range(0, symbols.len());
                 random_strings[3] = symbols[random_number];
             }
