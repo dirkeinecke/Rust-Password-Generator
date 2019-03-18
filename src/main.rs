@@ -11,12 +11,14 @@ struct Config {
     use_symbols: bool,
 }
 
-fn create_password(config: Config) -> String {
-    let lowercase_letters: [&str; 26] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-    let uppercase_letters: [&str; 26] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-    let numbers: [&str; 10] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    let symbols: [&str; 8] = ["!", "§", "$", "%", "&", "?", "@", "#",];
+struct Pool<'a> {
+    lowercase_letters: [&'a str; 26],
+    uppercase_letters: [&'a str; 26],
+    numbers: [&'a str; 10],
+    symbols: [&'a str; 8],
+}
 
+fn create_password(pool: Pool, config: Config) -> String {
     let mut rng = thread_rng();
 
     let mut password = String::new();
@@ -25,28 +27,28 @@ fn create_password(config: Config) -> String {
         let mut random_strings = ["", "", "", ""];
 
         {
-            let random_number = rng.gen_range(0, lowercase_letters.len());
-            random_strings[0] = lowercase_letters[random_number];
+            let random_number = rng.gen_range(0, pool.lowercase_letters.len());
+            random_strings[0] = pool.lowercase_letters[random_number];
         }
 
         {
             if config.use_uppercase_letters {
-                let random_number = rng.gen_range(0, uppercase_letters.len());
-                random_strings[1] = uppercase_letters[random_number];
+                let random_number = rng.gen_range(0, pool.uppercase_letters.len());
+                random_strings[1] = pool.uppercase_letters[random_number];
             }
         }
 
         {
             if config.use_numbers {
-                let random_number = rng.gen_range(0, numbers.len());
-                random_strings[2] = numbers[random_number];
+                let random_number = rng.gen_range(0, pool.numbers.len());
+                random_strings[2] = pool.numbers[random_number];
             }
         }
 
         {
             if config.use_symbols {
-                let random_number = rng.gen_range(0, symbols.len());
-                random_strings[3] = symbols[random_number];
+                let random_number = rng.gen_range(0, pool.symbols.len());
+                random_strings[3] = pool.symbols[random_number];
             }
         }
 
@@ -62,6 +64,13 @@ fn create_password(config: Config) -> String {
 fn main() {
 
     let args: Vec<OsString> = env::args_os().collect();
+
+    let pool = Pool {
+        lowercase_letters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
+        uppercase_letters: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+        numbers: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        symbols: ["!", "§", "$", "%", "&", "?", "@", "#",],
+    };
 
     let mut config = Config {
         password_length: 10,
@@ -94,6 +103,6 @@ fn main() {
         }
     }
 
-    println!("{}", create_password(config));
+    println!("{}", create_password(pool, config));
 
 }
